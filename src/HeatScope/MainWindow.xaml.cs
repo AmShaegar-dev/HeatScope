@@ -505,14 +505,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             var path = Path.Combine(Path.GetTempPath(), "PawnIO_setup.exe");
             await File.WriteAllBytesAsync(path, bytes);
             UpdateStatus("Запускаю установщик PawnIO (подтвердите UAC)…");
-            var p = Process.Start(new ProcessStartInfo(path) { UseShellExecute = true, Verb = "runas" });
+            var p = Process.Start(new ProcessStartInfo(path)
+            {
+                UseShellExecute = true,
+                Verb = "runas",
+                Arguments = "-install -silent"
+            });
             if (p is not null)
             {
                 await p.WaitForExitAsync();
-                UpdateStatus("Установщик завершён.");
+                UpdateStatus("Драйвер PawnIO установлен.");
                 MessageBox.Show(this,
-                    "Если установка прошла успешно — перезапустите HeatScope, чтобы включить датчики температуры.\n\n" +
-                    "Приложение перезапустится автоматически после нажатия ОК.",
+                    "Драйвер датчиков установлен. Приложение перезапустится, чтобы включить температуры.",
                     "PawnIO", MessageBoxButton.OK, MessageBoxImage.Information);
                 var exe = Environment.ProcessPath;
                 if (!string.IsNullOrEmpty(exe))
@@ -559,16 +563,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public Brush GpuTempBrush => TempBrush(_snapshot.GpuTemp);
 
     public string ModelText => _model.QualityText;
-    public Brush ModelBrush =>
-        _model.QualityText.Contains("высокая") ? new SolidColorBrush(Color.FromRgb(0x45, 0xD4, 0x83)) :
-        _model.QualityText.Contains("средняя") ? new SolidColorBrush(Color.FromRgb(0xFF, 0xB0, 0x20)) :
-        new SolidColorBrush(Color.FromRgb(0x8B, 0x93, 0xA7));
+    public Brush ModelBrush => new SolidColorBrush(Color.FromRgb(0x4F, 0xA3, 0xFF));
 
-    public string ModelHint => _model.SampleCount < 15
-        ? "накапливаю замеры для оценки"
-        : (_model.CpuRegressionUsed || _model.GpuRegressionUsed)
-            ? "регрессия по замерам"
-            : "подъём температуры × доля нагрузки";
+    public string ModelHint
+    {
+        get
+        {
+            if (_model.SampleCount < 5) return "накапливаю замеры для оценки";
+            if (_model.CpuBaseline is { } b && _model.CpuCurrent is { } c)
+                return $"база {b:0.0} °C · сейчас {c:0.0} °C";
+            return "нет данных о температуре";
+        }
+    }
 
     public string DetailsText { get => _detailsText; set { _detailsText = value; OnPropertyChanged(); } }
     public string StatusText { get => _statusText; set { _statusText = value; OnPropertyChanged(); } }

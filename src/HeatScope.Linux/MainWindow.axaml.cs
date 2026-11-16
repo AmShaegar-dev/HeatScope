@@ -309,15 +309,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public IBrush GpuTempBrush => TempBrush(_snapshot.GpuTemp);
 
     public string ModelText => _model.QualityText;
-    public IBrush ModelBrush =>
-        _model.QualityText.Contains("высокая") ? Brush("#45D483") :
-        _model.QualityText.Contains("средняя") ? Brush("#FFB020") : Brush("#8B93A7");
+    public IBrush ModelBrush => Brush("#4FA3FF");
 
-    public string ModelHint => _model.SampleCount < 15
-        ? "накапливаю замеры для оценки"
-        : (_model.CpuRegressionUsed || _model.GpuRegressionUsed)
-            ? "регрессия по замерам"
-            : "подъём температуры × доля нагрузки";
+    public string ModelHint
+    {
+        get
+        {
+            if (_model.SampleCount < 5) return "накапливаю замеры для оценки";
+            if (_model.CpuBaseline is { } b && _model.CpuCurrent is { } c)
+                return $"база {b:0.0} °C · сейчас {c:0.0} °C";
+            return "нет данных о температуре";
+        }
+    }
 
     public string DetailsText { get => _detailsText; set { _detailsText = value; OnPropertyChanged(); } }
     public string StatusText { get => _statusText; set { _statusText = value; OnPropertyChanged(); } }

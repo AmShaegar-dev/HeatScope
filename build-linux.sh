@@ -11,7 +11,7 @@ if ! command -v dotnet >/dev/null 2>&1; then
     exit 1
 fi
 
-VERSION="${VERSION:-0.1.0}"
+VERSION="${VERSION:-0.1.1}"
 
 echo "Публикация self-contained бинарника..."
 dotnet publish src/HeatScope.Linux/HeatScope.Linux.csproj \

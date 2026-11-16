@@ -8,7 +8,7 @@ if (Test-Path (Join-Path $dotnetDir 'dotnet.exe')) { $env:PATH = "$dotnetDir;$en
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
 $env:DOTNET_NOLOGO = '1'
 
-$version = if ($env:VERSION) { $env:VERSION } else { '0.1.0' }
+$version = if ($env:VERSION) { $env:VERSION } else { '0.1.1' }
 
 Write-Host 'Публикация Linux-бинарника (linux-x64, self-contained)...' -ForegroundColor Cyan
 & dotnet publish 'src\HeatScope.Linux\HeatScope.Linux.csproj' -c Release -r linux-x64 --self-contained true `

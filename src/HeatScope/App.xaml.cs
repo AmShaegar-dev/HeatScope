@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Principal;
 using System.Windows;
+using HeatScope.Services;
 
 namespace HeatScope;
 
@@ -46,6 +47,8 @@ public partial class App : Application
                 // пользователь отклонил UAC — продолжаем без прав администратора
             }
         }
+
+        HardwareSampler.Prepare();
 
         new MainWindow().Show();
     }

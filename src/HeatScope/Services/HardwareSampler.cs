@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using HeatScope.Models;
 using LibreHardwareMonitor.Hardware;
@@ -20,21 +22,51 @@ public sealed class HardwareSampler : IDisposable
     public string? LastError { get; private set; }
     public bool IsElevated { get; } = CheckElevated();
 
-    public static bool DriverInstalled
+    public static string PawnIoDir =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "PawnIO");
+
+    public static bool DriverInstalled =>
+        File.Exists(Path.Combine(PawnIoDir, "PawnIOLib.dll"));
+
+    /// <summary>
+    /// Добавляет папку PawnIO в путь поиска DLL и запускает службу драйвера.
+    /// Вызывать до первого обращения к LibreHardwareMonitor.
+    /// </summary>
+    public static void Prepare()
     {
-        get
+        try
         {
-            try
-            {
-                using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\PawnIO");
-                return key is not null;
-            }
-            catch
-            {
-                return false;
-            }
+            if (Directory.Exists(PawnIoDir))
+                SetDllDirectory(PawnIoDir);
         }
+        catch { }
+
+        try
+        {
+            string output = RunSc("query PawnIO");
+            if (!output.Contains("RUNNING", StringComparison.OrdinalIgnoreCase))
+                RunSc("start PawnIO");
+        }
+        catch { }
     }
+
+    private static string RunSc(string args)
+    {
+        using var p = Process.Start(new ProcessStartInfo("sc.exe", args)
+        {
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        });
+        if (p is null) return "";
+        string text = p.StandardOutput.ReadToEnd();
+        p.WaitForExit(3000);
+        return text;
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool SetDllDirectory(string lpPathName);
 
     public event Action<HardwareSnapshot>? SnapshotReady;
 
