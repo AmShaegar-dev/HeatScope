@@ -130,6 +130,7 @@
                     <Button Content="Завершить с дочерними" AutomationProperties.AutomationId="BtnKillTree" Style="{StaticResource DangerButton}" Click="KillTree_Click" />
                     <Button Content="Пауза процесса" AutomationProperties.AutomationId="BtnSuspend" Click="Suspend_Click" />
                     <Button Content="Продолжить процесс" AutomationProperties.AutomationId="BtnResume" Click="Resume_Click" />
+                    <Button Content="{Binding CoolText}" AutomationProperties.AutomationId="BtnCool" Style="{StaticResource AccentButton}" Click="Cool_Click" />
                     <Button Content="Проверить вклад (20 с)" AutomationProperties.AutomationId="BtnTest" Style="{StaticResource AccentButton}" Click="Test_Click" />
                     <Button Content="Обновить сведения" AutomationProperties.AutomationId="BtnRefresh" Click="RefreshDetails_Click" Margin="0" />
                     <CheckBox Content="Сортировать по нагреву" IsChecked="{Binding AutoSort, Mode=TwoWay}"

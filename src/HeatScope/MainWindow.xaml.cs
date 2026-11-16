@@ -20,6 +20,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly HardwareSampler _hardware = new();
     private readonly ProcessSampler _sampler = new();
     private readonly ThermalModel _model = new();
+    private readonly CoolingSession _cooling = new();
     private readonly Dictionary<int, ProcessRow> _byPid = new();
     private readonly HashSet<int> _suspended = new();
     private readonly Queue<(double? cpu, double? gpu)> _tempHistory = new();
@@ -88,7 +89,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             _tick++;
             if (AutoSort && _tick % 2 == 0) _view.Refresh();
 
-            StatusRightText = $"{stats.Count} процессов · опрос 1 с";
+            if (_cooling.Active && DateTime.Now >= _cooling.Until)
+                StopCooling("Автоохлаждение завершено — процессы возобновлены, настройки питания восстановлены.");
+
+            StatusRightText = _cooling.Active
+                ? $"{stats.Count} процессов · охлаждение ещё {_cooling.RemainingText}"
+                : $"{stats.Count} процессов · опрос 1 с";
         }
         catch (Exception ex)
         {
@@ -376,6 +382,43 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         UpdateStatus($"Замер завершён: CPU {dCpu:+0.0;-0.0;0} °C, GPU {dGpu:+0.0;-0.0;0} °C.");
     }
 
+    private void Cool_Click(object sender, RoutedEventArgs e)
+    {
+        if (_cooling.Active)
+        {
+            StopCooling("Охлаждение выключено — процессы возобновлены, настройки питания восстановлены.");
+            return;
+        }
+
+        if (_cooling.Start(Rows, TimeSpan.FromMinutes(5), out var message, out var affected))
+        {
+            foreach (var row in affected)
+            {
+                _suspended.Add(row.Pid);
+                row.Suspended = true;
+            }
+            OnPropertyChanged(nameof(CoolText));
+            UpdateStatus(message + " Через 5 минут всё вернётся автоматически.");
+        }
+        else
+        {
+            UpdateStatus(message);
+        }
+    }
+
+    private void StopCooling(string message)
+    {
+        var pids = _cooling.Pids.ToList();
+        _cooling.Stop();
+        foreach (var pid in pids)
+        {
+            _suspended.Remove(pid);
+            if (_byPid.TryGetValue(pid, out var row)) row.Suspended = false;
+        }
+        OnPropertyChanged(nameof(CoolText));
+        UpdateStatus(message);
+    }
+
     private (double? cpu, double? gpu) AverageTemps(int count)
     {
         var cpu = _tempHistory.Where(t => t.cpu is not null).Select(t => t.cpu!.Value).TakeLast(count).ToList();
@@ -490,7 +533,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     // ───────────────────────────── свойства ─────────────────────────────
 
-    public string PauseText => _paused ? "Продолжить опрос" : "Пауза опроса";
+    public string PauseText => _paused ? "Возобновить опрос" : "Остановить опрос";
+
+    public string CoolText => _cooling.Active ? "Прекратить охлаждение" : "Охладить (5 мин)";
 
     public string AdminBadge => _hardware.IsElevated ? "администратор" : "без прав администратора";
 
@@ -552,6 +597,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     protected override void OnClosed(EventArgs e)
     {
         _timer.Stop();
+        _cooling.Dispose();
         _hardware.SnapshotReady -= OnHardwareSnapshot;
         _hardware.Dispose();
         _sampler.Dispose();
