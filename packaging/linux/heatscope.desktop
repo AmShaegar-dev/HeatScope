@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=HeatScope
+GenericName=Thermal Monitor
+Comment=Shows which processes heat the CPU and GPU, with pause/terminate
+Exec=heatscope-root
+TryExec=heatscope-root
+Icon=heatscope
+Terminal=false
+Categories=System;Monitor;Utility;
+Keywords=temperature;monitor;processes;cpu;gpu;heat;
+StartupWMClass=HeatScope

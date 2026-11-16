@@ -114,3 +114,20 @@ src/HeatScope/
 ```powershell
 ./build-installer.ps1
 ```
+## Linux / Ubuntu
+
+Есть отдельная версия для Linux: Avalonia UI + данные из `/proc` и `/sys/class/hwmon` (без Windows-драйверов).
+
+```bash
+# Ubuntu/Debian: установка из .deb
+sudo apt install ./heatscope_0.1.0_amd64.deb
+heatscope-root
+
+# или из архива
+tar -xzf HeatScope-0.1.0-linux-x64.tar.gz -C heatscope && cd heatscope
+bash install.sh
+```
+
+Подробности и ограничения (GPU по процессам, hwmon, root): [README-LINUX.md](README-LINUX.md).
+
+Кросс-сборка с Windows: `./build-linux.ps1` → `release/HeatScope-0.1.0-linux-x64.tar.gz`.

@@ -1,0 +1,162 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HeatScope.Linux.MainWindow"
+        Title="HeatScope — монитор нагрева ПК"
+        Width="1460" Height="880" MinWidth="1120" MinHeight="640"
+        WindowStartupLocation="CenterScreen"
+        Background="#101218">
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                <Image Source="avares://HeatScope/Assets/logo-64.png" Width="36" Height="36" />
+                <TextBlock Text="HeatScope" FontSize="22" FontWeight="Bold" Foreground="#4FA3FF" VerticalAlignment="Center" />
+                <TextBlock Text="монитор нагрева и виновников" FontSize="12.5" Foreground="#8B93A7"
+                           VerticalAlignment="Bottom" Margin="0,0,0,3" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                <Border Background="#171A22" BorderBrush="#262B37" BorderThickness="1" CornerRadius="6" Padding="10,5">
+                    <TextBlock Text="{Binding AdminBadge}" Foreground="#8B93A7" FontSize="12" />
+                </Border>
+                <Button Content="{Binding PauseText}" Click="Pause_Click" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Баннер -->
+        <Border Grid.Row="1" Background="#2A2118" BorderBrush="#5C4A22" BorderThickness="1"
+                CornerRadius="8" Padding="12,9" Margin="0,0,0,12"
+                IsVisible="{Binding ShowBanner}">
+            <StackPanel Spacing="3">
+                <TextBlock Text="{Binding BannerTitle}" FontWeight="SemiBold" Foreground="#FFB020" />
+                <TextBlock Text="{Binding BannerText}" Foreground="#8B93A7" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <!-- Карточки -->
+        <Grid Grid.Row="2" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Classes="card">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="ПРОЦЕССОР" Classes="muted" />
+                    <TextBlock Text="{Binding CpuTempText}" Classes="big" Foreground="{Binding CpuTempBrush}" />
+                    <TextBlock Text="{Binding CpuName}" Classes="muted" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="ВИДЕОКАРТА" Classes="muted" />
+                    <TextBlock Text="{Binding GpuTempText}" Classes="big" Foreground="{Binding GpuTempBrush}" />
+                    <TextBlock Text="{Binding GpuName}" Classes="muted" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Classes="card">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="ЗАГРУЗКА CPU" Classes="muted" />
+                    <TextBlock Text="{Binding CpuLoadText}" Classes="big" />
+                    <TextBlock Text="{Binding CpuPowerText}" Classes="muted" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="3" Classes="card">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="ЗАГРУЗКА GPU" Classes="muted" />
+                    <TextBlock Text="{Binding GpuLoadText}" Classes="big" />
+                    <TextBlock Text="gpu_busy_percent" Classes="muted" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="4" Classes="card">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="ПАМЯТЬ" Classes="muted" />
+                    <TextBlock Text="{Binding RamText}" Classes="big" FontSize="20" />
+                    <TextBlock Text="использовано / всего" Classes="muted" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="5" Classes="card" Margin="0">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="ТЕРМОМОДЕЛЬ" Classes="muted" />
+                    <TextBlock Text="{Binding ModelText}" FontSize="15" FontWeight="SemiBold" Foreground="{Binding ModelBrush}" />
+                    <TextBlock Text="{Binding ModelHint}" Classes="muted" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Основная часть -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,6,440" MinHeight="320">
+            <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button Content="Завершить" Classes="danger" Click="Kill_Click" />
+                    <Button Content="Завершить группу" Classes="danger" Click="KillTree_Click" />
+                    <Button Content="Пауза" Click="Suspend_Click" />
+                    <Button Content="Продолжить" Click="Resume_Click" />
+                    <Button Content="{Binding CoolText}" Classes="accent" Click="Cool_Click" />
+                    <Button Content="Обновить сведения" Click="RefreshDetails_Click" />
+                </WrapPanel>
+
+                <DataGrid Grid.Row="1" x:Name="ProcessGrid"
+                          ItemsSource="{Binding Rows}"
+                          SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                          SelectionMode="Single"
+                          CanUserReorderColumns="False"
+                          CanUserResizeColumns="True"
+                          IsReadOnly="True"
+                          AutoGenerateColumns="False"
+                          GridLinesVisibility="None">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Процесс" Binding="{Binding Name}" Width="170" />
+                        <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="60" />
+                        <DataGridTextColumn Header="CPU" Binding="{Binding CpuText}" Width="65" />
+                        <DataGridTextColumn Header="GPU" Binding="{Binding GpuText}" Width="65" />
+                        <DataGridTextColumn Header="RAM, МБ" Binding="{Binding RamText}" Width="80" />
+                        <DataGridTextColumn Header="+°C CPU" Binding="{Binding TempCpuText}" Width="80" />
+                        <DataGridTextColumn Header="+°C GPU" Binding="{Binding TempGpuText}" Width="80" />
+                        <DataGridTextColumn Header="Нагрев" Binding="{Binding TempTotalText}" Width="85" />
+                        <DataGridTextColumn Header="Пользователь" Binding="{Binding UserName}" Width="130" />
+                        <DataGridTextColumn Header="Статус" Binding="{Binding StatusText}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Width="6" Background="Transparent" />
+
+            <Border Grid.Column="2" Background="#171A22" BorderBrush="#262B37" BorderThickness="1"
+                    CornerRadius="10" Padding="12">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Подробности процесса" FontWeight="SemiBold"
+                               Foreground="#8B93A7" Margin="0,0,0,8" />
+                    <TextBox Text="{Binding DetailsText}" IsReadOnly="True" AcceptsReturn="True"
+                             TextWrapping="NoWrap" FontFamily="monospace" FontSize="12"
+                             Background="#101218" Foreground="#E7EAF0" BorderThickness="0" Padding="6"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Статус -->
+        <Grid Grid.Row="4" Margin="0,10,0,0">
+            <TextBlock Text="{Binding StatusText}" Foreground="#8B93A7" FontSize="12" />
+            <TextBlock Text="{Binding StatusRightText}" Foreground="#8B93A7" FontSize="12" HorizontalAlignment="Right" />
+        </Grid>
+    </Grid>
+</Window>

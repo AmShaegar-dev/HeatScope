@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{745AE383-51D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeatScope", "src\HeatScope\HeatScope.csproj", "{216D1BB8-F884-4E4E-8C82-50D2DAD78A3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeatScope.Linux", "src\HeatScope.Linux\HeatScope.Linux.csproj", "{9AC22371-0D6F-46D4-BA83-6934383A158F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +22,13 @@ Global
 		{216D1BB8-F884-4E4E-8C82-50D2DAD78A3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{216D1BB8-F884-4E4E-8C82-50D2DAD78A3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{216D1BB8-F884-4E4E-8C82-50D2DAD78A3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AC22371-0D6F-46D4-BA83-6934383A158F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AC22371-0D6F-46D4-BA83-6934383A158F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AC22371-0D6F-46D4-BA83-6934383A158F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AC22371-0D6F-46D4-BA83-6934383A158F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{216D1BB8-F884-4E4E-8C82-50D2DAD78A3B} = {745AE383-51D1-4FCD-AEF2-FCF3D8D8942E}
+		{9AC22371-0D6F-46D4-BA83-6934383A158F} = {745AE383-51D1-4FCD-AEF2-FCF3D8D8942E}
 	EndGlobalSection
 EndGlobal

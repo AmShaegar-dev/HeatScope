@@ -1,0 +1,72 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HeatScope.Linux.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#101218" />
+            <Setter Property="FontFamily" Value="Inter, Segoe UI, Cantarell, sans-serif" />
+        </Style>
+
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#E7EAF0" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#232A38" />
+            <Setter Property="Foreground" Value="#E7EAF0" />
+            <Setter Property="BorderBrush" Value="#2A3040" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="FontSize" Value="12.5" />
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2E3749" />
+        </Style>
+
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#3A1F22" />
+            <Setter Property="BorderBrush" Value="#5C2A30" />
+        </Style>
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="#1E3550" />
+            <Setter Property="BorderBrush" Value="#2E5C8A" />
+            <Setter Property="Foreground" Value="#DCEBFF" />
+        </Style>
+
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#171A22" />
+            <Setter Property="BorderBrush" Value="#262B37" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+        </Style>
+
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="#8B93A7" />
+            <Setter Property="FontSize" Value="11" />
+        </Style>
+
+        <Style Selector="TextBlock.big">
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="#171A22" />
+            <Setter Property="RowBackground" Value="#171A22" />
+            <Setter Property="BorderBrush" Value="#262B37" />
+            <Setter Property="GridLinesVisibility" Value="None" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="AutoGenerateColumns" Value="False" />
+        </Style>
+    </Application.Styles>
+</Application>
