@@ -21,6 +21,9 @@ internal static class Native
     [DllImport("libc")]
     public static extern uint geteuid();
 
+    [DllImport("libc")]
+    public static extern int getpgrp();
+
     public static int ClockTicks
     {
         get

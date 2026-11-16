@@ -65,7 +65,10 @@ public static class LinuxGuard
         }
 
         int sig = force ? Native.SIGKILL : Native.SIGTERM;
-        int target = entireTree && row.Pgid > 0 && row.Pgid != Environment.ProcessId ? -row.Pgid : row.Pid;
+        int ownPgrp = Native.getpgrp();
+        int target = entireTree && row.Pgid > 0 && row.Pgid != ownPgrp && row.Pgid != Environment.ProcessId
+            ? -row.Pgid
+            : row.Pid;
 
         if (!Signal(target, sig, out var error))
         {

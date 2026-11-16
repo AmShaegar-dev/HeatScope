@@ -56,6 +56,12 @@ sudo apt install dotnet-sdk-8.0 dpkg-dev
 - Приложение не ставит себе `CAP_SYS_PTRACE`; для сигналов чужим процессам нужен root.
 - Тестировалось только сборкой на Windows (кросс-компиляция); на реальном Ubuntu требуется проверка.
 
+## Полезно знать
+
+- Если интерфейс подтормаживает на системе с сотнями процессов, отключите разбор GPU `fdinfo`:
+  `HEATSCOPE_NO_GPU=1 heatscope-root`.
+- Скрипты из архива запускайте через `bash install.sh`; при необходимости `chmod +x build-linux.sh packaging/linux/*.sh`.
+
 ## Отличия от Windows-версии
 
 - Нет драйвера PawnIO и WPF — используется Avalonia и sysfs/procfs.

@@ -30,6 +30,7 @@ public sealed class LinuxProcessSampler
         public double Ticks;
         public DateTime TimeUtc;
         public double GpuNs;
+        public DateTime GpuTimeUtc;
         public string? Path;
         public string? User;
     }
@@ -41,12 +42,15 @@ public sealed class LinuxProcessSampler
     private readonly Dictionary<uint, string> _users = new();
     private readonly long _bootTime = ReadBootTime();
     private readonly bool _gpuEnabled = Environment.GetEnvironmentVariable("HEATSCOPE_NO_GPU") != "1";
+    private readonly Dictionary<int, double> _gpuCache = new();
+    private int _sampleIndex;
 
     public List<ProcInfo> Sample()
     {
         var result = new List<ProcInfo>(256);
         var seen = new HashSet<int>();
         var now = DateTime.UtcNow;
+        _sampleIndex++;
 
         IEnumerable<string> dirs;
         try { dirs = Directory.EnumerateDirectories("/proc", "*"); }
@@ -65,7 +69,7 @@ public sealed class LinuxProcessSampler
                 double cpuPct = 0;
                 if (!_prev.TryGetValue(pid, out var prev))
                 {
-                    prev = new Prev();
+                    prev = new Prev { TimeUtc = now, GpuTimeUtc = now };
                     _prev[pid] = prev;
                 }
                 else
@@ -87,13 +91,22 @@ public sealed class LinuxProcessSampler
                 double gpuPct = 0;
                 if (_gpuEnabled)
                 {
-                    double ns = ReadGpuNs(pid);
-                    if (prev.GpuNs > 0 && ns >= prev.GpuNs)
+                    if (_sampleIndex % 3 == 0)
                     {
-                        double elapsed = (now - prev.TimeUtc).TotalSeconds + 1e-6;
-                        gpuPct = Math.Clamp((ns - prev.GpuNs) / 1e9 / elapsed * 100.0, 0, 100);
+                        double ns = ReadGpuNs(pid);
+                        if (prev.GpuNs > 0 && ns >= prev.GpuNs)
+                        {
+                            double elapsed = (now - prev.GpuTimeUtc).TotalSeconds + 1e-6;
+                            gpuPct = Math.Clamp((ns - prev.GpuNs) / 1e9 / elapsed * 100.0, 0, 100);
+                            _gpuCache[pid] = gpuPct;
+                        }
+                        prev.GpuNs = ns;
+                        prev.GpuTimeUtc = now;
                     }
-                    prev.GpuNs = ns;
+                    else
+                    {
+                        gpuPct = _gpuCache.TryGetValue(pid, out var cached) ? cached : 0;
+                    }
                 }
 
                 bool kernelThread = string.IsNullOrEmpty(cmd) && prev.Path is null;
